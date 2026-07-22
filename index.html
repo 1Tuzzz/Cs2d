@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<title>CS2D</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+touch-action:none;
+}
+
+html,body{
+
+width:100%;
+height:100%;
+overflow:hidden;
+background:#4caf50;
+
+}
+
+canvas{
+
+display:block;
+width:100%;
+height:100%;
+background:#4caf50;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+
+<script>
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+}
+
+resize();
+
+window.addEventListener("resize",resize);
+
+//---------------------------
+// Игрок
+//---------------------------
+
+const player={
+
+x:500,
+y:500,
+
+size:20,
+
+speed:4,
+
+dx:0,
+dy:0
+
+};
+
+//---------------------------
+// Карта
+//---------------------------
+
+const map={
+
+width:3000,
+height:3000
+
+};
+
+//---------------------------
+// Камера
+//---------------------------
+
+const camera={
+
+x:0,
+y:0
+
+};
+
+//---------------------------
+// Левый джойстик
+//---------------------------
+
+const leftJoystick={
+
+active:false,
+
+baseX:120,
+baseY:canvas.height-120,
+
+stickX:120,
+stickY:canvas.height-120,
+
+radius:50,
+
+moveX:0,
+moveY:0
+
+};
+//---------------------------
+// Сенсорное управление
+//---------------------------
+
+canvas.addEventListener("touchstart",e=>{
+
+for(const touch of e.touches){
+
+if(touch.clientX<canvas.width/2){
+
+leftJoystick.active=true;
+
+leftJoystick.baseX=touch.clientX;
+leftJoystick.baseY=touch.clientY;
+
+leftJoystick.stickX=touch.clientX;
+leftJoystick.stickY=touch.clientY;
+
+}
+
+}
+
+});
+
+canvas.addEventListener("touchmove",e=>{
+
+if(!leftJoystick.active)return;
+
+const touch=e.touches[0];
+
+let dx=touch.clientX-leftJoystick.baseX;
+let dy=touch.clientY-leftJoystick.baseY;
+
+const dist=Math.hypot(dx,dy);
+
+if(dist>leftJoystick.radius){
+
+dx=dx/dist*leftJoystick.radius;
+dy=dy/dist*leftJoystick.radius;
+
+}
+
+leftJoystick.stickX=leftJoystick.baseX+dx;
+leftJoystick.stickY=leftJoystick.baseY+dy;
+
+leftJoystick.moveX=dx/leftJoystick.radius;
+leftJoystick.moveY=dy/leftJoystick.radius;
+
+e.preventDefault();
+
+},{passive:false});
+
+canvas.addEventListener("touchend",()=>{
+
+leftJoystick.active=false;
+
+leftJoystick.moveX=0;
+leftJoystick.moveY=0;
+
+leftJoystick.stickX=leftJoystick.baseX;
+leftJoystick.stickY=leftJoystick.baseY;
+
+});
+
+//---------------------------
+// Обновление
+//---------------------------
+
+function update(){
+
+player.x+=leftJoystick.moveX*player.speed;
+player.y+=leftJoystick.moveY*player.speed;
+
+camera.x=player.x-canvas.width/2;
+camera.y=player.y-canvas.height/2;
+
+}
+
+//---------------------------
+// Рисование игрока
+//---------------------------
+
+function drawPlayer(){
+
+ctx.fillStyle="#0066ff";
+
+ctx.beginPath();
+
+ctx.arc(
+
+player.x-camera.x,
+player.y-camera.y,
+
+player.size,
+
+0,
+
+Math.PI*2
+
+);
+
+ctx.fill();
+
+}
+
+//---------------------------
+// Рисование джойстика
+//---------------------------
+
+function drawJoystick(){
+
+if(!leftJoystick.active)return;
+
+ctx.globalAlpha=0.5;
+
+ctx.fillStyle="gray";
+
+ctx.beginPath();
+
+ctx.arc(
+
+leftJoystick.baseX,
+leftJoystick.baseY,
+
+leftJoystick.radius,
+
+0,
+
+Math.PI*2
+
+);
+
+ctx.fill();
+
+ctx.fillStyle="white";
+
+ctx.beginPath();
+
+ctx.arc(
+
+leftJoystick.stickX,
+leftJoystick.stickY,
+
+20,
+
+0,
+
+Math.PI*2
+
+);
+
+ctx.fill();
+
+ctx.globalAlpha=1;
+
+}
+//---------------------------
+// Рисование карты
+//---------------------------
+
+function drawMap(){
+
+ctx.fillStyle="#4caf50";
+ctx.fillRect(
+-camera.x,
+-camera.y,
+map.width,
+map.height
+);
+
+// сетка
+
+ctx.strokeStyle="#5dbb63";
+ctx.lineWidth=1;
+
+for(let x=0;x<=map.width;x+=100){
+
+ctx.beginPath();
+
+ctx.moveTo(x-camera.x,-camera.y);
+ctx.lineTo(x-camera.x,map.height-camera.y);
+
+ctx.stroke();
+
+}
+
+for(let y=0;y<=map.height;y+=100){
+
+ctx.beginPath();
+
+ctx.moveTo(-camera.x,y-camera.y);
+ctx.lineTo(map.width-camera.x,y-camera.y);
+
+ctx.stroke();
+
+}
+
+}
+
+//---------------------------
+// Главный цикл игры
+//---------------------------
+
+function game(){
+
+update();
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+drawMap();
+
+drawPlayer();
+
+drawJoystick();
+
+requestAnimationFrame(game);
+
+}
+
+game();
+
+</script>
+
+</body>
+</html>
