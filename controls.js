@@ -107,3 +107,83 @@ function drawLeftJoystick(ctx){
 
     ctx.globalAlpha = 1;
 }
+//==============================
+// Правый джойстик
+//==============================
+
+const rightJoystick = {
+    active: false,
+
+    baseX: 0,
+    baseY: 0,
+
+    stickX: 0,
+    stickY: 0,
+
+    radius: 50,
+
+    dx: 0,
+    dy: 0
+};
+
+canvas.addEventListener("touchstart", e => {
+
+    for (const touch of e.changedTouches) {
+
+        if (touch.clientX > window.innerWidth / 2) {
+
+            rightJoystick.active = true;
+
+            rightJoystick.baseX = touch.clientX;
+            rightJoystick.baseY = touch.clientY;
+
+            rightJoystick.stickX = touch.clientX;
+            rightJoystick.stickY = touch.clientY;
+        }
+
+    }
+
+});
+
+canvas.addEventListener("touchmove", e => {
+
+    if (!rightJoystick.active) return;
+
+    for (const touch of e.changedTouches) {
+
+        if (touch.clientX > window.innerWidth / 2) {
+
+            let dx = touch.clientX - rightJoystick.baseX;
+            let dy = touch.clientY - rightJoystick.baseY;
+
+            const dist = Math.hypot(dx, dy);
+
+            if (dist > rightJoystick.radius) {
+
+                dx = dx / dist * rightJoystick.radius;
+                dy = dy / dist * rightJoystick.radius;
+
+            }
+
+            rightJoystick.stickX = rightJoystick.baseX + dx;
+            rightJoystick.stickY = rightJoystick.baseY + dy;
+
+            rightJoystick.dx = dx / rightJoystick.radius;
+            rightJoystick.dy = dy / rightJoystick.radius;
+
+            player.angle = Math.atan2(dy, dx);
+
+        }
+
+    }
+
+});
+
+canvas.addEventListener("touchend", () => {
+
+    rightJoystick.active = false;
+
+    rightJoystick.dx = 0;
+    rightJoystick.dy = 0;
+
+});
