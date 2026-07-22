@@ -137,7 +137,6 @@ map.height
 );
 
 }
-
 //--------------------------------
 // Сенсорное управление
 //--------------------------------
@@ -283,7 +282,8 @@ ctx.fill();
 
 ctx.globalAlpha=1;
 
-}//--------------------------------
+}
+//--------------------------------
 // Главный цикл игры
 //--------------------------------
 
@@ -331,84 +331,6 @@ drawPlayer();
 // джойстик
 
 drawJoystick();
-
-requestAnimationFrame(draw);
-
-}
-
-draw();
-
-</script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CS2D</title>
-
-<style>
-html,body{
-margin:0;
-overflow:hidden;
-background:#3b8c3b;
-touch-action:none;
-}
-
-canvas{
-display:block;
-background:#4caf50;
-}
-</style>
-
-</head>
-<body>
-
-<canvas id="game"></canvas>
-
-<script>
-
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-
-function resize(){
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-}
-resize();
-window.onresize=resize;
-
-const player={
-x:canvas.width/2,
-y:canvas.height/2,
-r:20,
-angle:0
-};
-
-function draw(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-// карта
-ctx.fillStyle="#4caf50";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-
-// игрок
-ctx.fillStyle="blue";
-ctx.beginPath();
-ctx.arc(player.x,player.y,player.r,0,Math.PI*2);
-ctx.fill();
-
-// пистолет
-ctx.save();
-ctx.translate(player.x,player.y);
-ctx.rotate(player.angle);
-
-ctx.fillStyle="black";
-ctx.fillRect(0,-4,28,8);
-
-ctx.restore();
 
 requestAnimationFrame(draw);
 
